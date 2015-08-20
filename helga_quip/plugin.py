@@ -39,6 +39,12 @@ def _quip_manage(client, channel, nick, message, args):
             db.helga_quip.entries.remove(phrase)
     return random_ack()
 
+def _quote_groupdict(groupdict, quotelist):
+    return dict(map(lambda (k,v): urllib.quote(v) if k in quotelist else v, groupdict));
+
+def _quote_group(group, quotelist):
+    return _quote_groupdict(zip(map(str,range(len(group))), group), quotelist)
+
 def _quip_respond(message):
     """ Search for matching quip, respond if exists """
     for phrase in db.helga_quip.entries.find():

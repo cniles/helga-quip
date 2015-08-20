@@ -21,7 +21,13 @@ def _quip_manage(client, channel, nick, message, args):
         r = requests.post("http://dpaste.com/api/v2/", payload)
         return r.headers['location']
     else:
-        phrase = {'kind':args[1], 'regex':args[2]}
+        valid_options=["-q"]
+
+        # Filter out any option that is invalid and turn them into a
+        # dict
+        options = dict(map(lambda o: (o[:2], o[2:]), filter(lambda o: o[:2] in valid_options, args[3:])))
+        
+        phrase = {'kind':args[1], 'regex':args[2], 'options':options}
         if args[0] == 'add':
             phrase['nick'] = nick
             try:

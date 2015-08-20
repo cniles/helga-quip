@@ -51,6 +51,12 @@ def _quip_respond(message):
         result = re.search(phrase['regex'], message, re.I)
         if result:
             quip = phrase['kind']
+
+            # get the quote list option; if it doesn't exist set it to
+            # empty list.
+            quotelist = phrase['options']['-q']
+            quotelist = quotelist.split(",") if quotelist else []
+
             # TODO this will handle either named groups or positional. it needs
             # some work to support hybrid backreferenced named and positonal
             # groups, but I may implement in the near future. putting in this

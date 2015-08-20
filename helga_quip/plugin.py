@@ -65,7 +65,7 @@ def _quip_respond(message):
             # take care of backreferenced named groups, ez mode
             if result.groupdict():
                 try:
-                    quip = quip.format(**result.groupdict())
+                    quip = quip.format(**_quote_groupdict(result.groupdict()))
                 except IndexError:
                     # really python, no partial format support? i have
                     # to write my own formatter (using different $ syntax) or
@@ -74,7 +74,7 @@ def _quip_respond(message):
                     pass
             # take care of positional arguments
             else:
-                quip = quip.format(*result.groups())
+                quip = quip.format(*_quote_group(result.groups()))
             return ('success', quip)
 
 @match(_quip_respond)

@@ -1,13 +1,18 @@
 """ Helga entry point for plugin """
 import re, requests
+from helga import log
 from helga.db import db
 from helga.plugins import command, match, random_ack
+
+from helga_quip.util import quote_groupdict, quote_group
 
 _help_text = 'Match quips and other witticisms. Usage:\
 !quip add/remove <quip_kind> <quip_regex>\
 Example:\
 1. !quip add "thats what she said" "(it|that|this) (sounds|is|was) really hard"\
 2. !quip add "your mom {0}" "(looks|is) really (leet|fat|awesome)"'
+
+logger = log.getLogger(__name__)
 
 def _quip_manage(client, channel, nick, message, args):
     """ Add/remove quip/phrase to stash """
@@ -21,7 +26,7 @@ def _quip_manage(client, channel, nick, message, args):
         r = requests.post("http://dpaste.com/api/v2/", payload)
         return r.headers['location']
     else:
-        valid_options=["-q"]
+        valid_options=['-q']
 
         # Filter out any option that is invalid and turn them into a
         # dict
@@ -39,12 +44,6 @@ def _quip_manage(client, channel, nick, message, args):
             db.helga_quip.entries.remove(phrase)
     return random_ack()
 
-def _quote_groupdict(groupdict, quotelist):
-    return dict(map(lambda (k,v): urllib.quote(v) if k in quotelist else v, groupdict));
-
-def _quote_group(group, quotelist):
-    return _quote_groupdict(zip(map(str,range(len(group))), group), quotelist)
-
 def _quip_respond(message):
     """ Search for matching quip, respond if exists """
     for phrase in db.helga_quip.entries.find():
@@ -54,7 +53,7 @@ def _quip_respond(message):
 
             # get the quote list option; if it doesn't exist set it to
             # empty list.
-            quotelist = phrase['options']['-q']
+            quotelist = phrase['options'].get('-q', None)
             quotelist = quotelist.split(",") if quotelist else []
 
             # TODO this will handle either named groups or positional. it needs
@@ -65,7 +64,7 @@ def _quip_respond(message):
             # take care of backreferenced named groups, ez mode
             if result.groupdict():
                 try:
-                    quip = quip.format(**_quote_groupdict(result.groupdict()))
+                    quip = quip.format(**quote_groupdict(result.groupdict(), quotelist))
                 except IndexError:
                     # really python, no partial format support? i have
                     # to write my own formatter (using different $ syntax) or
@@ -74,7 +73,7 @@ def _quip_respond(message):
                     pass
             # take care of positional arguments
             else:
-                quip = quip.format(*_quote_group(result.groups()))
+                quip = quip.format(*quote_group(result.groups(), quotelist))
             return ('success', quip)
 
 @match(_quip_respond)

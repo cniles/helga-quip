@@ -1,12 +1,22 @@
+"""
+Utility methods used in helga_quip.plugin
+"""
+
 import urllib
 
 def quote_groupdict(groupdict, quotelist):
-    return dict(map(lambda (k,v): (k, urllib.quote(v)) if k in quotelist else (k, v), groupdict.iteritems()));
+    """Quotes (url-encodes) the items in groupdict whos key is in quotelist"""
+    return dict((k, urllib.quote(v)) if k in quotelist else (k, v)
+                for (k, v) in groupdict.iteritems())
 
 def quote_group(group, quotelist):
+    """Quotes (url-encodes) the items in group whose index is in quotelist"""
     if group is None:
         group = []
-    return [urllib.quote(v) if k in quotelist else v for (k, v) in zip(map(str, range(len(group))), group)]
+    return [urllib.quote(v) if k in quotelist else v
+            for (k, v) in zip((str(s) for s in range(len(group))), group)]
 
-def pretty_map(m):
-    return " ; ".join(map(lambda (k,v): "{0}: {1}".format(k, v), m.iteritems()));
+def pretty_map(inmap):
+    """Returns a pretty-formatted string representing the input map"""
+    return " ; ".join(["{0}: {1}".format(k, v)
+                       for (k, v) in inmap.iteritems()])

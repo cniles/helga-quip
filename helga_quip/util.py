@@ -7,3 +7,6 @@ def quote_group(group, quotelist):
     if group is None:
         group = []
     return [urllib.quote(v) if k in quotelist else v for (k, v) in zip(map(str, range(len(group))), group)]
+
+def pretty_map(m):
+    return " ; ".join(map(lambda (k,v): "{0}: {1}".format(k, v), m.iteritems()));

@@ -4,7 +4,7 @@ from helga import log
 from helga.db import db
 from helga.plugins import command, match, random_ack
 
-from helga_quip.util import quote_groupdict, quote_group
+from helga_quip.util import quote_groupdict, quote_group, pretty_map
 
 _help_text = 'Match quips and other witticisms. Usage:\
 !quip add/remove <quip_kind> <quip_regex>\
@@ -19,7 +19,7 @@ def _quip_manage(client, channel, nick, message, args):
     if args[0] == 'drop':
         db.helga_quip.entries.drop()
     elif args[0] == 'dump':
-        quips = [p['regex'] + ' | ' + p['kind'] for p in db.helga_quip.entries.find()]
+        quips = [p['regex'] + ' | ' + p['kind'] + ' | ' + pretty_map(p['options']) for p in db.helga_quip.entries.find()]
         if not quips:
             return "Quip database empty"
         payload = {'title':'helga-quip dump', 'content': '\n'.join(quips)}
